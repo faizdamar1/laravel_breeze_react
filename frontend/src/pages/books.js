@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import AppLayout from '@/components/Layouts/AppLayout'
 import Head from 'next/head'
 import axios from '@/lib/axios'
+import BookForm from '@/components/Books/Form'
 
 const BookPage = () => {
 
@@ -12,13 +13,17 @@ const BookPage = () => {
     const fetchBook = async () => {
         try {
             setLoading(true)
-            const { data } = await axios.get("http://127.0.0.1:8000/api/books");
+            const { data } = await axios.get("http://localhost:8000/api/books");
             setBooks(data.data);
         } catch (error) {
             setError(error.message)
         } finally {
             setLoading(false)
         }
+    }
+
+    const handleAddBook = ({ book }) => {
+        setBooks(dataBefore => [...dataBefore, book])
     }
 
     useEffect(() => {
@@ -41,6 +46,7 @@ const BookPage = () => {
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 bg-white border-b border-gray-200">
+                            <BookForm fetchBook={fetchBook} handleAddBook={handleAddBook} />
                             {
                                 isError ? isError : isLoading ? "loading" :
                                     books.map(book => (
