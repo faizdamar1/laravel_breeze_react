@@ -58,6 +58,12 @@ const BookPage = () => {
         setBooks(updateBooks)
     }
 
+    const handleDeleteBook = (id) => {
+
+        const filteredBooks = books.filter(item => item.id !== id)
+        setBooks(filteredBooks)
+    }
+
     const fetchBook = async () => {
         try {
             setLoading(true)
@@ -93,6 +99,19 @@ const BookPage = () => {
 
             handleUpdateBook({ book: data.data })
             resetForm()
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const deleteBook = async (id) => {
+        try {
+            await axios.delete(
+                `http://localhost:8000/api/books/${id}`
+            )
+
+            handleDeleteBook(id)
+
         } catch (error) {
             console.log(error)
         }
@@ -136,7 +155,7 @@ const BookPage = () => {
                                 handleAddBook={handleAddBook}
                                 formik={formik}
                             />
-                            <BookList books={books} getBook={getBook} />
+                            <BookList books={books} getBook={getBook} deleteBook={deleteBook} />
                         </div>
                     </div>
                 </div>

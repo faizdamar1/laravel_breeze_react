@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import Button from '../Froms/button'
 
-const List = ({ books = [], getBook }) => {
+const List = ({ books = [], getBook, deleteBook }) => {
     const Item = ({ children }) => {
         return (
             <div className="w-full border-gray-200 border-2 rounded-xl px-3 py-3 my-3">
@@ -22,7 +22,7 @@ const List = ({ books = [], getBook }) => {
                         </div>
                         <div>
                             <Button className="mr-2" onClick={()=>getBook(book.id)}>Edit</Button>
-                            <Button variant="danger">Delete</Button>
+                            <Button variant="danger" onClick={()=>deleteBook(book.id)}>Delete</Button>
                         </div>
                     </div>
                 </Item>
