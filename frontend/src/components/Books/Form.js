@@ -4,70 +4,81 @@ import FormControl from '@/components/Froms/formControl'
 import Input from '@/components/Froms/input'
 import Button from '@/components/Froms/button'
 import axios from '@/lib/axios'
+import { useFormik } from 'formik'
+import * as Yup from 'yup'
 
 const Form = ({ fetchBook, handleAddBook }) => {
-    const initialValue = {
-        name: '',
-        description: '',
-        price: 0,
-    }
+    const bookSchema = Yup.object().shape({
+        name: Yup.string()
+            .min(4, 'Name to short')
+            .max(254, 'Name to long')
+            .required('Name is Required'),
+        description: Yup.string()
+            .min(10, 'Description to short')
+            .max(300, 'Description to long')
+            .required('Description Required'),
+        price: Yup.number().required('Price is Required'),
+    })
 
-    const [form, setForm] = useState(initialValue)
+    const formik = useFormik({
+        initialValues: {
+            name: '',
+            description: '',
+            price: 0,
+        },
+        validationSchema: bookSchema,
+        onSubmit: (values, {resetForm}) => {
+            handleSubmit(values, resetForm)
+        },
+    })
 
-    const { name, description, price } = form
-
-    const handleChangeInput = e => {
-        setForm(before => ({
-            ...before,
-            [e.target.name]: e.target.value,
-        }))
-    }
-
-    const resetForm = () => {
-        setForm(initialValue)
-    }
-
-    const handleSubmit = async e => {
-        e.preventDefault()
+    const handleSubmit = async (values, resetForm) => {
+        console.log(!(formik.isValid && formik.dirty))
         try {
-            // setLoading(true)
             const { data } = await axios.post(
                 'http://localhost:8000/api/books',
-                form,
+                values,
             )
 
             handleAddBook({ book: data.data })
             resetForm()
-
             // fetchBook()
         } catch (error) {
-            // setError(error.message)
             console.log(error)
         } finally {
-            // setLoading(false)
         }
     }
 
     return (
         <div className="w-full">
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={formik.handleSubmit}>
                 <FormControl label="Name" id="name">
                     <Input
                         placeholder="name"
                         id="name"
                         name="name"
-                        onChange={handleChangeInput}
-                        value={name}
+                        onChange={formik.handleChange}
+                        value={formik.values.name}
                     />
+                    {formik.errors && (
+                        <label className="text-red-600">
+                            {formik.errors['name']}
+                        </label>
+                    )}
                 </FormControl>
                 <FormControl label="Description" id="description">
                     <Input
                         placeholder="description"
                         id="description"
                         name="description"
-                        onChange={handleChangeInput}
-                        value={description}
+                        onChange={formik.handleChange}
+                        value={formik.values.description}
                     />
+                    {formik.errors && (
+                        <label className="text-red-600">
+                            {formik.errors['description']}
+                        </label>
+                    )}
                 </FormControl>
                 <FormControl label="Price" id="price">
                     <Input
@@ -75,11 +86,16 @@ const Form = ({ fetchBook, handleAddBook }) => {
                         id="price"
                         name="price"
                         type="number"
-                        onChange={handleChangeInput}
-                        value={price}
+                        onChange={formik.handleChange}
+                        value={formik.values.price}
                     />
+                    {formik.errors && (
+                        <label className="text-red-600">
+                            {formik.errors['price']}
+                        </label>
+                    )}
                 </FormControl>
-                <Button type="submit">Submit</Button>
+                <Button type="submit" disabled={!(formik.isValid && formik.dirty)}>Submit</Button>
             </form>
         </div>
     )
