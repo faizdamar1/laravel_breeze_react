@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Book;
 use App\Http\Resources\BookResource;
+use App\Models\Book;
+use Illuminate\Http\Request;
 use Validator;
 
 class BookController extends Controller
@@ -18,7 +18,7 @@ class BookController extends Controller
     {
         $books = Book::all();
         $bookResource = BookResource::collection($books);
-        
+
         return $this->sendResponse($bookResource, 'get data successfully');
     }
 
@@ -48,15 +48,13 @@ class BookController extends Controller
             "price" => "required",
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return $this->sendError("Validation error", $validator->errors(), );
         }
 
         $book = Book::create($input);
 
         return $this->sendResponse($book, "Book created successfuly");
-
-
     }
 
     /**
@@ -67,7 +65,8 @@ class BookController extends Controller
      */
     public function show($id)
     {
-        //
+        $book = Book::find($id);
+        return $this->sendResponse($book, "Book retrive successfuly");
     }
 
     /**
@@ -78,7 +77,7 @@ class BookController extends Controller
      */
     public function edit($id)
     {
-        //
+
     }
 
     /**
@@ -90,7 +89,27 @@ class BookController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $input = $request->all();
+
+        $validator = Validator::make($input, [
+            "name" => "required|min:4",
+            "description" => "required|min:10|max:300",
+            "price" => "required",
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError("Validation error", $validator->errors(), );
+        }
+
+        $book = Book::find($id);
+
+        $book->name = $input['name'];
+        $book->description = $input['description'];
+        $book->price = $input['price'];
+
+        $book->save();
+
+        return $this->sendResponse(new BookResource($book), "Book updated successfuly");
     }
 
     /**
